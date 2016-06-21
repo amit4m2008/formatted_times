@@ -54,43 +54,55 @@ module FormatTime
       'VV' => '%V',
       'UU' => '%U',
       'WW' => '%W'
-    }
+    },
 
     # Seconds related opions
-
-    'ss' => '%s',
-    'QQ' => '%Q',
+    :seconds_options => {
+      'ss' => '%s',
+      'QQ' => '%Q'
+    },
 
     # Literal string related options
-
-    'nn' => '%n',
-    'tt' => '%t',
+    :literal_string_options => {
+      'nn' => '%n',
+      'tt' => '%t'
+    },
 
     # Combination Options
-
-    'cc' => '%c',
-    'DD' => '%D',
-    'FF' => '%F',
-    'vv' => '%v',
-    'xx' => '%x',
-    'XX' => '%X',
-    'rr' => '%r',
-    'RR' => '%R',
-    'TT' => '%T'
+    :combination_options => {
+      'cc' => '%c',
+      'DD' => '%D',
+      'FF' => '%F',
+      'vv' => '%v',
+      'xx' => '%x',
+      'XX' => '%X',
+      'rr' => '%r',
+      'RR' => '%R',
+      'TT' => '%T'
+    }
   }
 
   def get_strftime_string(name, *args)
     separator = args[0] || '/'
-    time_seperator = args[1] || ':'
+    time_seperator = args[1].is_a?(String) ? args[1] : ':'
     multiple_separator =  args[-1] || false
     options = name.split('_')
     options.shift
 
-    invalid_options = options - FORMATTING_OPTIONS.keys
+    invalid_options = options - FORMATTING_OPTIONS.values.inject(:merge).keys
     raise ::ArgumentError, "Options #{invalid_options.join(', ')} are invalid." unless invalid_options.empty?
 
-    strf_options = options.collect{ |option| FORMATTING_OPTIONS[option] }
-    binding.pry
-    multiple_separator ? strf_options.zip(separator.chars).flatten.compact.join : strf_options.join(separator)
+    strf_options = options.collect{ |option| FORMATTING_OPTIONS.values.inject(:merge)[option] }
+
+    # multiple_separator ? strf_options.zip(separator.chars).flatten.compact.join : strf_options.join(separator)
+
+    if multiple_separator
+      return strf_options.zip(separator.chars).flatten.compact.join
+    else
+      strf_options = strf_options.map{ |option|
+        FORMATTING_OPTIONS[:time_options].values.include?(option) ? "#{option}#{time_seperator}" : "#{option}#{separator}"
+      }
+      return (strf_options.length > 3 ? strf_options.insert(3, " ").join.split("#{separator} ").join(" ") : strf_options.join )[0..-2]
+    end
   end
 end
