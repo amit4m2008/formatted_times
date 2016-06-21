@@ -1,5 +1,5 @@
 module DateTimeExt
-  include FormateTime
+  include FormatTime
 
   def method_missing(sym, *args, &block)
 
@@ -8,6 +8,8 @@ module DateTimeExt
     if method_name.starts_with? 'frmt_'
       if args.length.in?([1, 2]) and args[0].is_a?(String)
         strf_time_string = get_strftime_string(method_name, args[0], args[1])
+      elsif args.length.in?([1, 2, 3]) and args[0].is_a?(String) and args[1].is_a?(String)
+        strf_time_string = get_strftime_string(method_name, args[0], args[1], args[2])
       else
         strf_time_string = get_strftime_string(method_name)
       end

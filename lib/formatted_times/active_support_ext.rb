@@ -1,7 +1,7 @@
 
 module ActiveSupport
   class TimeWithZone
-    include FormateTime
+    include FormatTime
 
     def method_missing(sym, *args, &block)
       method_name = sym.to_s
